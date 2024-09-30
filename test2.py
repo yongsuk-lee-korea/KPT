@@ -56,7 +56,7 @@ def add_message(role, message):
 def create_chain():
     # prompt | llm | output_parser
     prompt = PromptTemplate.from_template(
-    """You are an assistant for question-answering tasks. 
+        """You are an assistant for question-answering tasks. 
     Use the following pieces of retrieved context to answer the question. 
     If you don't know the answer, just say that you don't know. 
     you must include 'page' number and document name.
@@ -70,7 +70,7 @@ def create_chain():
 
     #Answer:"""
     )
- 
+
     # GPT
     llm = ChatOpenAI(model_name="gpt-4o", temperature=0)
     # 출력파서
@@ -78,14 +78,19 @@ def create_chain():
 
     # 체인 생성
     chain = (
-        {"context": lambda question: retriever.get_relevant_documents(str(question)),  # 질문을 문자열로 변환
-         "question": RunnablePassthrough()}
+        {
+            "context": lambda question: retriever.get_relevant_documents(
+                str(question)
+            ),  # 질문을 문자열로 변환
+            "question": RunnablePassthrough(),
+        }
         | prompt
         | llm
         | output_parser
     )
 
     return chain
+
 
 # 초기화 버튼이 눌리면?
 if clear_btn:
@@ -116,16 +121,3 @@ if user_input:
     # 대화기록을 저장한다
     add_message("user", user_input)
     add_message("assistant", ai_answer)
-
-
-
-# retriever 테스트
-test_query = "K-ICS 문서의 일부 내용 예시"  # 테스트할 질문
-docs = retriever.get_relevant_documents(test_query)
-
-# 반환된 문서 출력
-if docs:
-    for doc in docs:
-        print(doc.page_content)  # 각 문서의 내용 출력
-else:
-    print("관련된 문서를 찾을 수 없습니다.")
